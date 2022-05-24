@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rewrapper
+  labels:
+    app: rewrapper
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rewrapper
+  template:
+    metadata:
+      labels:
+        app: rewrapper
+    spec:
+      containers:
+        - name: rewrapper
+          image: docker-transport.monetplus.cz/rewrapper-worker:latest
+          ports:
+            - containerPort: 4156
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "int"
+#                - name: SPRING_CONFIG_LOCATION
+#                  valueFrom:
+#                    configMapKeyRef:
+#                      name: rewrap-config           # The ConfigMap this value comes from.
+#                      key: default.yaml # The key to fetch
+            - name: SPRING_CONFIG_LOCATION
+              value: "/conf/default.yaml"
+            - name: LOGGING_CONFIG
+              value: "/app/resources/logback.xml"
+          volumeMounts:
+            - name: config-volume
+              mountPath: /conf
+      volumes:
+        - name: config-volume
+          configMap:
+            name: rewrapper-cfgm
+            items:
+              - key: default.yaml
+                path: default.yaml
+              - key: endpoint.yaml
+                path: endpoint.yaml
+      imagePullSecrets:
+        - name: docker-transport
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rewrapper
+spec:
+  selector:
+    app: rewrapper
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 4156
