@@ -22,11 +22,6 @@ spec:
           env:
             - name: SPRING_PROFILES_ACTIVE
               value: "int"
-#                - name: SPRING_CONFIG_LOCATION
-#                  valueFrom:
-#                    configMapKeyRef:
-#                      name: rewrap-config           # The ConfigMap this value comes from.
-#                      key: default.yaml # The key to fetch
             - name: SPRING_CONFIG_LOCATION
               value: "/conf/default.yaml"
             - name: LOGGING_CONFIG
